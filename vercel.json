@@ -1,5 +1,5 @@
-# Ajouter le contenu correct à vercel.json
-Add-Content -Path vercel.json -Value @"
+
+Set-Content -Path vercel.json -Value @"
 {
   "version": 2,
   "builds": [
@@ -16,3 +16,4 @@ Add-Content -Path vercel.json -Value @"
   ]
 }
 "@
+
