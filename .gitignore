@@ -72,3 +72,11 @@ npm-debug.log
 .heroku/
 dist/
 coverage/
+node_modules/
+.env
+.vercel
+npm-debug.log
+.DS_Store
+*.log
+dist/
+coverage/

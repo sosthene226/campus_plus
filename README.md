@@ -51,3 +51,10 @@ npm start
 
 ## Contribution
 Les contributions sont les bienvenues !
+# Campus Plus
+
+Plateforme collaborative pour étudiants
+
+## Déploiement
+
+Déployé sur Vercel
