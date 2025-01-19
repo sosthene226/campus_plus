@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAMPUS+ - Tableau de Bord Étudiant</title>
+    
+    <!-- Styles CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/fontawesome.min.css">
+    <link rel="stylesheet" href="/css/campus-plus.css">
+</head>
+<body>
+    <div class="wrapper">
+        <!-- Sidebar de Navigation -->
+        <nav id="sidebar" class="bg-primary text-white">
+            <div class="sidebar-header text-center">
+                <img src="/images/logo-campus-plus.png" alt="Logo CAMPUS+" class="img-fluid mb-3">
+                <h3>CAMPUS+</h3>
+            </div>
+
+            <ul class="list-unstyled components">
+                <li class="active">
+                    <a href="#dashboard" data-toggle="tab">
+                        <i class="fas fa-home"></i> Tableau de Bord
+                    </a>
+                </li>
+                <li>
+                    <a href="#profil" data-toggle="tab">
+                        <i class="fas fa-user"></i> Mon Profil
+                    </a>
+                </li>
+                <li>
+                    <a href="#nova" data-toggle="tab">
+                        <i class="fas fa-robot"></i> NOVA Assistant
+                    </a>
+                </li>
+                <li>
+                    <a href="#groupes" data-toggle="tab">
+                        <i class="fas fa-users"></i> Groupes d'Étude
+                    </a>
+                </li>
+                <li>
+                    <a href="#bibliotheque" data-toggle="tab">
+                        <i class="fas fa-book"></i> Bibliothèque
+                    </a>
+                </li>
+                <li>
+                    <a href="#emploi-temps" data-toggle="tab">
+                        <i class="fas fa-calendar"></i> Emploi du Temps
+                    </a>
+                </li>
+                <li>
+                    <a href="#abonnement" data-toggle="tab">
+                        <i class="fas fa-credit-card"></i> Abonnement
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="logout">
+                        <i class="fas fa-sign-out-alt"></i> Déconnexion
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Contenu Principal -->
+        <div id="content" class="container-fluid">
+            <!-- Barre de Navigation Supérieure -->
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <button type="button" id="sidebarCollapse" class="btn btn-primary">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="ml-auto">
+                    <span id="user-name" class="mr-3"></span>
+                    <span id="abonnement-statut" class="badge"></span>
+                </div>
+            </nav>
+
+            <!-- Contenu Dynamique -->
+            <div class="tab-content">
+                <!-- Tableau de Bord -->
+                <div id="dashboard" class="tab-pane fade show active">
+                    <h1>Tableau de Bord</h1>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">NOVA Assistant</div>
+                                <div class="card-body">
+                                    <p>Générez des ressources académiques personnalisées</p>
+                                    <button class="btn btn-primary" data-target="#nova">Générer</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">Groupes d'Étude</div>
+                                <div class="card-body">
+                                    <p>Rejoignez ou créez des groupes</p>
+                                    <button class="btn btn-primary" data-target="#groupes">Explorer</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">Abonnement</div>
+                                <div class="card-body" id="abonnement-resume">
+                                    <!-- Dynamiquement rempli par JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profil -->
+                <div id="profil" class="tab-pane fade">
+                    <h1>Mon Profil</h1>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">Informations Personnelles</div>
+                                <div class="card-body" id="profil-infos">
+                                    <!-- Dynamiquement rempli par JS -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header">Modifier le Profil</div>
+                                <div class="card-body">
+                                    <form id="profil-form">
+                                        <!-- Formulaire de modification de profil -->
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NOVA Assistant -->
+                <div id="nova" class="tab-pane fade">
+                    <h1>NOVA Assistant</h1>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">Générer une Fiche de Révision</div>
+                                <div class="card-body">
+                                    <form id="nova-fiche-form">
+                                        <div class="form-group">
+                                            <label>Filière</label>
+                                            <select class="form-control" id="filiere-fiche"></select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Matière</label>
+                                            <input type="text" class="form-control" id="matiere-fiche">
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Générer</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">Générer un Cas Pratique</div>
+                                <div class="card-body">
+                                    <form id="nova-cas-pratique-form">
+                                        <div class="form-group">
+                                            <label>Filière</label>
+                                            <select class="form-control" id="filiere-cas-pratique"></select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Année d'Étude</label>
+                                            <select class="form-control" id="annee-etude">
+                                                <option value="1">1ère Année</option>
+                                                <option value="2">2ème Année</option>
+                                                <option value="3">3ème Année</option>
+                                                <option value="4">4ème Année</option>
+                                                <option value="5">5ème Année</option>
+                                            </select>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Générer</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Groupes d'Étude -->
+                <div id="groupes" class="tab-pane fade">
+                    <h1>Groupes d'Étude</h1>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">Créer un Groupe</div>
+                                <div class="card-body">
+                                    <form id="creer-groupe-form">
+                                        <div class="form-group">
+                                            <label>Nom du Groupe</label>
+                                            <input type="text" class="form-control" id="nom-groupe">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Type de Groupe</label>
+                                            <select class="form-control" id="type-groupe">
+                                                <option value="etude">Groupe d'Étude</option>
+                                                <option value="projet">Projet</option>
+                                                <option value="classe">Classe</option>
+                                            </select>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Créer</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header">Mes Groupes</div>
+                                <div class="card-body" id="liste-groupes">
+                                    <!-- Liste dynamique des groupes -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Abonnement -->
+                <div id="abonnement" class="tab-pane fade">
+                    <h1>Gestion d'Abonnement</h1>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">Statut Actuel</div>
+                                <div class="card-body" id="statut-abonnement">
+                                    <!-- Statut dynamique -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">Souscrire</div>
+                                <div class="card-body">
+                                    <form id="souscrire-abonnement-form">
+                                        <div class="form-group">
+                                            <label>Type d'Abonnement</label>
+                                            <select class="form-control" id="type-abonnement">
+                                                <option value="mensuel">Mensuel (2300 FCFA)</option>
+                                                <option value="trimestriel">Trimestriel (6300 FCFA)</option>
+                                                <option value="annuel">Annuel (22700 FCFA)</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Méthode de Paiement</label>
+                                            <select class="form-control" id="methode-paiement">
+                                                <option value="orange_money">Orange Money</option>
+                                                <option value="moov_money">Moov Money</option>
+                                                <option value="telecel_money">Telecel Money</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Numéro de Téléphone</label>
+                                            <input type="tel" class="form-control" id="numero-telephone">
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Souscrire</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/fontawesome.min.js"></script>
+    <script src="/js/campus-plus-etudiant.js"></script>
+</body>
+</html>

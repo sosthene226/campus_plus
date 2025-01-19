@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAMPUS+ - Inscription</title>
+    
+    <!-- Styles CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/campus-plus.css">
+</head>
+<body class="bg-primary">
+    <div class="container">
+        <div class="row justify-content-center align-items-center vh-100">
+            <div class="col-md-6">
+                <div class="card shadow-lg">
+                    <div class="card-header text-center bg-primary text-white">
+                        <img src="/images/logo-campus-plus.png" alt="Logo CAMPUS+" class="img-fluid mb-3" style="max-height: 100px;">
+                        <h2>CAMPUS+</h2>
+                        <p>Créer votre compte étudiant</p>
+                    </div>
+                    <div class="card-body">
+                        <form id="inscription-form">
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label for="nom">Nom</label>
+                                    <input type="text" class="form-control" id="nom" required>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="prenom">Prénom</label>
+                                    <input type="text" class="form-control" id="prenom" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" class="form-control" id="email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="motDePasse">Mot de passe</label>
+                                <input type="password" class="form-control" id="motDePasse" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="anneeEtude">Année d'Étude</label>
+                                <select class="form-control" id="anneeEtude" required>
+                                    <option value="">Sélectionnez votre année</option>
+                                    <option value="L1">L1</option>
+                                    <option value="L2">L2</option>
+                                    <option value="L3">L3</option>
+                                    <option value="M1">M1</option>
+                                    <option value="M2">M2</option>
+                                    <option value="Doctorat">Doctorat</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="filiere">Filière</label>
+                                <select class="form-control" id="filiere" required>
+                                    <option value="">Sélectionnez votre filière</option>
+                                    <option value="Droit">Droit</option>
+                                    <option value="Économie">Économie</option>
+                                    <option value="Gestion">Gestion</option>
+                                    <option value="Informatique">Informatique</option>
+                                    <option value="Médecine">Médecine</option>
+                                    <option value="Sciences">Sciences</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">S'inscrire</button>
+                            <div class="text-center mt-3">
+                                <p>Déjà un compte ? <a href="/login.html">Connectez-vous</a></p>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        // Fonction de validation du mot de passe
+        function validatePassword(password) {
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+            return passwordRegex.test(password);
+        }
+
+        // Validation en temps réel du mot de passe
+        $('#motDePasse').on('input', function() {
+            const $passwordField = $(this);
+            const $passwordHelp = $passwordField.next('.password-help');
+            
+            // Supprimer l'ancien message d'aide
+            if ($passwordHelp.length) {
+                $passwordHelp.remove();
+            }
+
+            const password = $passwordField.val();
+            const checks = [
+                { 
+                    condition: password.length >= 8, 
+                    message: 'Au moins 8 caractères' 
+                },
+                { 
+                    condition: /(?=.*[a-z])/.test(password), 
+                    message: 'Une minuscule' 
+                },
+                { 
+                    condition: /(?=.*[A-Z])/.test(password), 
+                    message: 'Une majuscule' 
+                },
+                { 
+                    condition: /(?=.*\d)/.test(password), 
+                    message: 'Un chiffre' 
+                },
+                { 
+                    condition: /(?=.*[@$!%*?&])/.test(password), 
+                    message: 'Un caractère spécial' 
+                }
+            ];
+
+            const helpHtml = `
+                <small class="form-text password-help text-muted">
+                    Critères du mot de passe :
+                    <ul class="list-unstyled">
+                        ${checks.map(check => `
+                            <li class="${check.condition ? 'text-success' : 'text-danger'}">
+                                ${check.condition ? '✓' : '✗'} ${check.message}
+                            </li>
+                        `).join('')}
+                    </ul>
+                </small>
+            `;
+
+            $passwordField.after(helpHtml);
+        });
+
+        $('#inscription-form').on('submit', async function(e) {
+            e.preventDefault();
+            
+            // Réinitialiser les messages d'erreur
+            $('.error-message').remove();
+            $('.alert-danger').remove();
+            
+            // Validation des champs
+            let isValid = true;
+
+            // Fonction de validation générique
+            const validateField = (selector, condition, message) => {
+                const $field = $(selector);
+                if (!condition) {
+                    $field.after(`<div class="error-message text-danger">${message}</div>`);
+                    isValid = false;
+                }
+            };
+
+            // Validation de chaque champ
+            const nom = $('#nom').val().trim();
+            const prenom = $('#prenom').val().trim();
+            const email = $('#email').val().trim();
+            const motDePasse = $('#motDePasse').val();
+            const anneeEtude = $('#anneeEtude').val();
+            const filiere = $('#filiere').val();
+
+            validateField('#nom', nom.length >= 2, 'Le nom doit faire au moins 2 caractères');
+            validateField('#prenom', prenom.length >= 2, 'Le prénom doit faire au moins 2 caractères');
+            validateField('#email', /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email), 'Email invalide');
+            
+            // Validation spécifique du mot de passe
+            const passwordValid = validatePassword(motDePasse);
+            validateField('#motDePasse', passwordValid, 'Le mot de passe ne respecte pas les critères');
+            
+            validateField('#anneeEtude', anneeEtude !== '', 'Veuillez sélectionner une année d\'étude');
+            validateField('#filiere', filiere !== '', 'Veuillez sélectionner une filière');
+
+            if (!isValid) return;
+
+            try {
+                const response = await fetch('/api/auth/inscription', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        nom: nom,
+                        prenom: prenom,
+                        email: email,
+                        motDePasse: motDePasse,
+                        anneeEtude: anneeEtude,
+                        filiere: filiere
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Stocker le token
+                    localStorage.setItem('campus_plus_token', data.token);
+                    
+                    // Rediriger vers le tableau de bord
+                    window.location.href = '/etudiant/dashboard.html';
+                } else {
+                    // Afficher l'erreur détaillée
+                    let errorMessage = data.message || 'Erreur d\'inscription';
+                    
+                    // Si des erreurs de validation sont présentes
+                    if (data.erreurs) {
+                        errorMessage += '\n\n' + data.erreurs.map(err => err.msg).join('\n');
+                    }
+
+                    // Afficher l'erreur
+                    $('#inscription-form').prepend(`
+                        <div class="alert alert-danger" role="alert">
+                            ${errorMessage}
+                        </div>
+                    `);
+                }
+            } catch (error) {
+                console.error('Erreur d\'inscription', error);
+                
+                // Afficher une erreur générique
+                $('#inscription-form').prepend(`
+                    <div class="alert alert-danger" role="alert">
+                        Une erreur réseau est survenue. Veuillez réessayer.
+                    </div>
+                `);
+            }
+        });
+    });
+    </script>
+</body>
+</html>

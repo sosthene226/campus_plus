@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAMPUS+ - Tableau de Bord Administration</title>
+    
+    <!-- Styles CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/campus-plus.css">
+    <link rel="stylesheet" href="/css/administration.css">
+</head>
+<body>
+    <div class="wrapper">
+        <!-- Sidebar de Navigation -->
+        <nav id="sidebar" class="bg-dark text-white">
+            <div class="sidebar-header text-center">
+                <img src="/images/logo-campus-plus.png" alt="Logo CAMPUS+" class="img-fluid mb-3">
+                <h3>CAMPUS+ Admin</h3>
+            </div>
+
+            <ul class="list-unstyled components">
+                <li class="active">
+                    <a href="#dashboard" data-toggle="tab">
+                        <i class="fas fa-home"></i> Tableau de Bord
+                    </a>
+                </li>
+                <li>
+                    <a href="#informations" data-toggle="tab">
+                        <i class="fas fa-info-circle"></i> Informations
+                    </a>
+                </li>
+                <li>
+                    <a href="#emploi-temps" data-toggle="tab">
+                        <i class="fas fa-calendar"></i> Emploi du Temps
+                    </a>
+                </li>
+                <li>
+                    <a href="#groupes-classe" data-toggle="tab">
+                        <i class="fas fa-users"></i> Groupes de Classe
+                    </a>
+                </li>
+                <li>
+                    <a href="#etudiants" data-toggle="tab">
+                        <i class="fas fa-graduation-cap"></i> Gestion Étudiants
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="logout">
+                        <i class="fas fa-sign-out-alt"></i> Déconnexion
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Contenu Principal -->
+        <div id="content" class="container-fluid">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <button type="button" id="sidebarCollapse" class="btn btn-dark">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="ml-auto">
+                    <span id="admin-name" class="mr-3"></span>
+                </div>
+            </nav>
+
+            <!-- Contenu Dynamique -->
+            <div class="tab-content">
+                <!-- Tableau de Bord -->
+                <div id="dashboard" class="tab-pane fade show active">
+                    <h1>Tableau de Bord Administration</h1>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">Statistiques Étudiants</div>
+                                <div class="card-body" id="stats-etudiants">
+                                    <!-- Statistiques dynamiques -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">Dernières Informations</div>
+                                <div class="card-body" id="dernieres-informations">
+                                    <!-- Liste des dernières informations -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">Actions Rapides</div>
+                                <div class="card-body">
+                                    <button class="btn btn-primary btn-block mb-2" data-target="#informations">
+                                        <i class="fas fa-plus"></i> Nouvelle Information
+                                    </button>
+                                    <button class="btn btn-success btn-block mb-2" data-target="#emploi-temps">
+                                        <i class="fas fa-upload"></i> Uploader Emploi du Temps
+                                    </button>
+                                    <button class="btn btn-info btn-block" data-target="#groupes-classe">
+                                        <i class="fas fa-users"></i> Gérer Groupes
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Informations -->
+                <div id="informations" class="tab-pane fade">
+                    <h1>Gestion des Informations</h1>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">Créer une Information</div>
+                                <div class="card-body">
+                                    <form id="creer-information-form">
+                                        <div class="form-group">
+                                            <label>Titre</label>
+                                            <input type="text" class="form-control" id="titre-info" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Contenu</label>
+                                            <textarea class="form-control" id="contenu-info" rows="4" required></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Type</label>
+                                            <select class="form-control" id="type-info">
+                                                <option value="generale">Générale</option>
+                                                <option value="formation">Formation</option>
+                                                <option value="urgence">Urgence</option>
+                                                <option value="evenement">Événement</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Formation</label>
+                                            <select class="form-control" id="formation-info" multiple>
+                                                <option value="toutes">Toutes</option>
+                                                <!-- Ajouter dynamiquement les formations -->
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Années d'Étude</label>
+                                            <select class="form-control" id="annees-info" multiple>
+                                                <option value="1">1ère Année</option>
+                                                <option value="2">2ème Année</option>
+                                                <option value="3">3ème Année</option>
+                                                <option value="4">4ème Année</option>
+                                                <option value="5">5ème Année</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Pièce Jointe</label>
+                                            <input type="file" class="form-control-file" id="piece-jointe-info">
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Publier</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header">Liste des Informations</div>
+                                <div class="card-body" id="liste-informations">
+                                    <!-- Liste dynamique des informations -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Emploi du Temps -->
+                <div id="emploi-temps" class="tab-pane fade">
+                    <h1>Gestion de l'Emploi du Temps</h1>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">Uploader Emploi du Temps</div>
+                                <div class="card-body">
+                                    <form id="upload-emploi-temps-form">
+                                        <div class="form-group">
+                                            <label>Formation</label>
+                                            <select class="form-control" id="formation-emploi-temps" required>
+                                                <!-- Ajouter dynamiquement les formations -->
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Année d'Étude</label>
+                                            <select class="form-control" id="annee-emploi-temps" required>
+                                                <option value="1">1ère Année</option>
+                                                <option value="2">2ème Année</option>
+                                                <option value="3">3ème Année</option>
+                                                <option value="4">4ème Année</option>
+                                                <option value="5">5ème Année</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Semestre</label>
+                                            <select class="form-control" id="semestre-emploi-temps" required>
+                                                <option value="1">Semestre 1</option>
+                                                <option value="2">Semestre 2</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Fichier</label>
+                                            <input type="file" class="form-control-file" id="fichier-emploi-temps" accept=".pdf,.xlsx,.png,.jpg,.jpeg" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Date de Début</label>
+                                            <input type="date" class="form-control" id="date-debut-emploi-temps" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Date de Fin</label>
+                                            <input type="date" class="form-control" id="date-fin-emploi-temps" required>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Uploader</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header">Liste des Emplois du Temps</div>
+                                <div class="card-body" id="liste-emplois-temps">
+                                    <!-- Liste dynamique des emplois du temps -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Groupes de Classe -->
+                <div id="groupes-classe" class="tab-pane fade">
+                    <h1>Gestion des Groupes de Classe</h1>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">Envoyer un Message</div>
+                                <div class="card-body">
+                                    <form id="message-groupe-form">
+                                        <div class="form-group">
+                                            <label>Groupe</label>
+                                            <select class="form-control" id="groupe-selection" required>
+                                                <!-- Groupes dynamiques -->
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Message</label>
+                                            <textarea class="form-control" id="message-groupe" rows="4" required></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Envoyer</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header">Liste des Groupes</div>
+                                <div class="card-body" id="liste-groupes-classe">
+                                    <!-- Liste dynamique des groupes -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gestion Étudiants -->
+                <div id="etudiants" class="tab-pane fade">
+                    <h1>Gestion des Étudiants</h1>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">Rechercher un Étudiant</div>
+                                <div class="card-body">
+                                    <form id="recherche-etudiant-form">
+                                        <div class="form-group">
+                                            <label>Critères de Recherche</label>
+                                            <input type="text" class="form-control" id="criteres-recherche" placeholder="Nom, Email, Formation">
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Rechercher</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header">Résultats</div>
+                                <div class="card-body" id="resultats-recherche-etudiants">
+                                    <!-- Résultats dynamiques -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/fontawesome.min.js"></script>
+    <script src="/js/campus-plus-administration.js"></script>
+</body>
+</html>

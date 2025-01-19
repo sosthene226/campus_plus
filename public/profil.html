@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAMPUS+ - Mon Profil</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/global.css">
+    <style>
+        body {
+            background-color: var(--gray-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .profil-container {
+            width: 100%;
+            max-width: 600px;
+        }
+        .profil-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .profil-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group input, .form-group select {
+            margin-top: 5px;
+        }
+        .form-actions {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-between;
+        }
+        .edit-mode input, .edit-mode select {
+            border: 1px solid var(--primary-color);
+        }
+        .read-only {
+            background-color: var(--gray-medium);
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="profil-container card">
+        <div class="profil-header">
+            <h1 class="title title-primary">Mon Profil</h1>
+            <button id="edit-toggle" class="btn btn-primary">Modifier</button>
+        </div>
+
+        <form id="profil-form">
+            <div class="form-group">
+                <label for="nom">Nom</label>
+                <input type="text" id="nom" name="nom" readonly class="form-control read-only">
+            </div>
+            <div class="form-group">
+                <label for="prenom">Prénom</label>
+                <input type="text" id="prenom" name="prenom" readonly class="form-control read-only">
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" readonly class="form-control read-only">
+            </div>
+            <div class="form-group">
+                <label for="annee-etude">Année d'étude</label>
+                <select id="annee-etude" name="anneeEtude" disabled class="form-control read-only">
+                    <option value="L1">Licence 1</option>
+                    <option value="L2">Licence 2</option>
+                    <option value="L3">Licence 3</option>
+                    <option value="M1">Master 1</option>
+                    <option value="M2">Master 2</option>
+                    <option value="Doctorat">Doctorat</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="filiere">Filière</label>
+                <input type="text" id="filiere" name="filiere" readonly class="form-control read-only">
+            </div>
+            <div class="form-group">
+                <label for="date-inscription">Date d'inscription</label>
+                <input type="text" id="date-inscription" readonly class="form-control read-only">
+            </div>
+            <div class="form-actions">
+                <button type="button" id="retour-connexion" class="btn btn-primary">Retour</button>
+                <button type="submit" id="sauvegarder" class="btn btn-primary" style="display: none;">Sauvegarder</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Fonction pour récupérer le profil
+        async function chargerProfil() {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    window.location.href = '/index.html';
+                    return;
+                }
+
+                const response = await fetch('/api/profil/me', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    const { profil } = data.donnees;
+                    
+                    // Remplir les champs du formulaire
+                    document.getElementById('nom').value = profil.nom;
+                    document.getElementById('prenom').value = profil.prenom;
+                    document.getElementById('email').value = profil.email;
+                    document.getElementById('annee-etude').value = profil.anneeEtude;
+                    document.getElementById('filiere').value = profil.filiere;
+                    
+                    // Formater la date d'inscription
+                    const dateInscription = new Date(profil.dateInscription);
+                    document.getElementById('date-inscription').value = dateInscription.toLocaleDateString('fr-FR', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric'
+                    });
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Impossible de charger le profil');
+                window.location.href = '/index.html';
+            }
+        }
+
+        // Gestion du mode édition
+        const editToggle = document.getElementById('edit-toggle');
+        const sauvegarderBtn = document.getElementById('sauvegarder');
+        const form = document.getElementById('profil-form');
+
+        editToggle.addEventListener('click', () => {
+            const inputs = form.querySelectorAll('input, select');
+            const isReadOnly = inputs[0].readOnly;
+
+            inputs.forEach(input => {
+                if (isReadOnly) {
+                    input.readOnly = false;
+                    input.disabled = false;
+                    input.classList.remove('read-only');
+                    editToggle.textContent = 'Annuler';
+                    sauvegarderBtn.style.display = 'block';
+                } else {
+                    input.readOnly = true;
+                    input.disabled = true;
+                    input.classList.add('read-only');
+                    editToggle.textContent = 'Modifier';
+                    sauvegarderBtn.style.display = 'none';
+                    // Recharger les données originales
+                    chargerProfil();
+                }
+            });
+        });
+
+        // Soumettre les modifications
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                nom: document.getElementById('nom').value,
+                prenom: document.getElementById('prenom').value,
+                email: document.getElementById('email').value,
+                anneeEtude: document.getElementById('annee-etude').value,
+                filiere: document.getElementById('filiere').value
+            };
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/profil/me', {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    alert('Profil mis à jour avec succès');
+                    // Recharger le profil et désactiver le mode édition
+                    chargerProfil();
+                    editToggle.click();
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Impossible de mettre à jour le profil');
+            }
+        });
+
+        // Bouton de retour
+        document.getElementById('retour-connexion').addEventListener('click', () => {
+            window.location.href = '/index.html';
+        });
+
+        // Charger le profil au chargement de la page
+        chargerProfil();
+    </script>
+</body>
+</html>

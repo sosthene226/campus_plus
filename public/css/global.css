@@ -1,0 +1,139 @@
+/* Palette de couleurs et variables globales */
+:root {
+    /* Couleurs principales */
+    --primary-gradient-start: #667eea;
+    --primary-gradient-end: #764ba2;
+    --primary-color: #764ba2;
+    --secondary-color: #667eea;
+    
+    /* Nuances de gris */
+    --gray-light: #f4f4f4;
+    --gray-medium: #ddd;
+    --gray-dark: #333;
+    
+    /* Couleurs d'état */
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    
+    /* Typographie */
+    --font-family-primary: 'Poppins', sans-serif;
+    
+    /* Espacements */
+    --spacing-small: 10px;
+    --spacing-medium: 20px;
+    --spacing-large: 30px;
+    
+    /* Bordures */
+    --border-radius-small: 8px;
+    --border-radius-medium: 15px;
+}
+
+/* Reset et base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-family-primary);
+    line-height: 1.6;
+    color: var(--gray-dark);
+    background: var(--gray-light);
+}
+
+/* Composants réutilisables */
+.btn {
+    display: inline-block;
+    padding: 12px 24px;
+    border: none;
+    border-radius: var(--border-radius-small);
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: scale(1.05);
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--gray-medium);
+    border-radius: var(--border-radius-small);
+    font-size: 1rem;
+}
+
+.card {
+    background: white;
+    border-radius: var(--border-radius-medium);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    padding: var(--spacing-large);
+}
+
+/* Titres */
+.title {
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-medium);
+}
+
+.title-primary {
+    font-size: 2.5rem;
+    font-weight: 600;
+}
+
+/* Alertes */
+.alert {
+    padding: var(--spacing-small);
+    border-radius: var(--border-radius-small);
+    margin-bottom: var(--spacing-medium);
+}
+
+.alert-success {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: var(--success-color);
+}
+
+.alert-danger {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: var(--danger-color);
+}
+
+/* Liens */
+.link {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.link:hover {
+    color: var(--secondary-color);
+    text-decoration: underline;
+}
+
+/* Responsive Typography */
+@media (max-width: 768px) {
+    body {
+        font-size: 14px;
+    }
+    
+    .title-primary {
+        font-size: 2rem;
+    }
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.5s ease-out;
+}

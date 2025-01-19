@@ -1,0 +1,74 @@
+# Dépendances
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Environnement
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Fichiers de build
+dist/
+build/
+out/
+.next/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Fichiers de système
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Éditeurs et IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Caches
+.cache/
+.eslintcache
+.npm
+.node_repl_history
+
+# Tests
+coverage/
+.nyc_output/
+
+# Base de données locale
+*.sqlite
+*.db
+
+# Fichiers temporaires
+tmp/
+temp/
+
+# Sessions et caches runtime
+.node-persist/
+.cache/
+
+# Fichiers de backup
+*.bak
+*.backup
+
+# Fichiers de configuration spécifiques à l'utilisateur
+.npmrc
+.yarnrc
+node_modules/
+.env
+npm-debug.log
+.DS_Store
+*.log
+.heroku/
+dist/
+coverage/

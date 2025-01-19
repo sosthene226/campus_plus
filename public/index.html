@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAMPUS+ - Authentification</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/global.css">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .auth-container {
+            width: 100%;
+            max-width: 450px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            padding: 40px;
+            text-align: center;
+        }
+        .toggle-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        .toggle-btn {
+            background: none;
+            border: none;
+            font-size: 1rem;
+            margin: 0 15px;
+            cursor: pointer;
+            color: #888;
+            position: relative;
+        }
+        .toggle-btn.active {
+            color: #764ba2;
+            font-weight: 600;
+        }
+        .toggle-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: #764ba2;
+        }
+        #connexion-form, #inscription-form {
+            display: none;
+        }
+        #connexion-form.active, #inscription-form.active {
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container card">
+        <div class="title title-primary">CAMPUS+</div>
+        
+        <div class="toggle-container">
+            <button class="toggle-btn active" data-form="connexion">Connexion</button>
+            <button class="toggle-btn" data-form="inscription">Inscription</button>
+        </div>
+
+        <form id="connexion-form" class="form-container active">
+            <div class="form-group">
+                <label for="email-connexion">Email</label>
+                <input type="email" id="email-connexion" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="password-connexion">Mot de passe</label>
+                <input type="password" id="password-connexion" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Se connecter</button>
+            <div class="form-footer">
+                <a href="#" class="link">Mot de passe oublié ?</a>
+            </div>
+        </form>
+
+        <form id="inscription-form" class="form-container">
+            <div class="form-group">
+                <label for="nom">Nom</label>
+                <input type="text" id="nom" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="prenom">Prénom</label>
+                <input type="text" id="prenom" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="email-inscription">Email</label>
+                <input type="email" id="email-inscription" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="annee-etude">Année d'étude</label>
+                <select id="annee-etude" class="form-control" required>
+                    <option value="">Sélectionnez votre année</option>
+                    <option value="L1">Licence 1</option>
+                    <option value="L2">Licence 2</option>
+                    <option value="L3">Licence 3</option>
+                    <option value="M1">Master 1</option>
+                    <option value="M2">Master 2</option>
+                    <option value="Doctorat">Doctorat</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="filiere">Filière</label>
+                <input type="text" id="filiere" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="password-inscription">Mot de passe</label>
+                <input type="password" id="password-inscription" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="confirm-password">Confirmer le mot de passe</label>
+                <input type="password" id="confirm-password" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary">S'inscrire</button>
+        </form>
+    </div>
+
+    <!-- Bouton pour charger Socket.IO -->
+    <div id="socketIOContainer" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
+        <button id="loadSocketIO" style="
+          background-color: #4CAF50; 
+          border: none; 
+          color: white; 
+          padding: 15px 32px; 
+          text-align: center; 
+          text-decoration: none; 
+          display: inline-block; 
+          font-size: 16px; 
+          margin: 4px 2px; 
+          cursor: pointer;
+          border-radius: 8px;
+        ">
+          Charger Socket.IO
+        </button>
+    </div>
+
+    <!-- Bouton pour appliquer Socket.IO à tous les fichiers -->
+    <div id="applySocketIOAllFiles" style="position: fixed; bottom: 80px; right: 20px; z-index: 1000;">
+        <button id="applySocketIOToAllFiles" style="
+          background-color: #2196F3; 
+          border: none; 
+          color: white; 
+          padding: 15px 32px; 
+          text-align: center; 
+          text-decoration: none; 
+          display: inline-block; 
+          font-size: 16px; 
+          margin: 4px 2px; 
+          cursor: pointer;
+          border-radius: 8px;
+        ">
+          Appliquer Socket.IO à tous les fichiers
+        </button>
+    </div>
+
+    <!-- Bouton pour ajouter Socket.IO et le client socket -->
+    <div id="socketIntegrationContainer" style="position: fixed; bottom: 100px; right: 20px; z-index: 1000;">
+        <button id="addSocketIntegration" style="
+          background-color: #FF9800; 
+          border: none; 
+          color: white; 
+          padding: 15px 32px; 
+          text-align: center; 
+          text-decoration: none; 
+          display: inline-block; 
+          font-size: 16px; 
+          margin: 4px 2px; 
+          cursor: pointer;
+          border-radius: 8px;
+        ">
+          Intégrer Socket.IO
+        </button>
+    </div>
+
+    <!-- Bouton pour ajouter les tests WebSocket -->
+    <div id="websocketTestIntegrationContainer" style="position: fixed; bottom: 180px; right: 20px; z-index: 1000;">
+        <button id="addWebSocketTestIntegration" style="
+          background-color: #9C27B0; 
+          border: none; 
+          color: white; 
+          padding: 15px 32px; 
+          text-align: center; 
+          text-decoration: none; 
+          display: inline-block; 
+          font-size: 16px; 
+          margin: 4px 2px; 
+          cursor: pointer;
+          border-radius: 8px;
+        ">
+          Ajouter Tests WebSocket
+        </button>
+    </div>
+
+    <script>
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Désactiver tous les boutons
+                document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+                
+                // Activer le bouton cliqué
+                btn.classList.add('active');
+
+                // Masquer tous les formulaires
+                document.getElementById('connexion-form').classList.remove('active');
+                document.getElementById('inscription-form').classList.remove('active');
+
+                // Afficher le formulaire correspondant
+                document.getElementById(`${btn.dataset.form}-form`).classList.add('active');
+            });
+        });
+
+        // Gestion des soumissions de formulaires
+        document.getElementById('connexion-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email-connexion').value;
+            const password = document.getElementById('password-connexion').value;
+
+            try {
+                const response = await fetch('/api/auth/connexion', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, motDePasse: password })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    alert('Connexion réussie !');
+                    // Rediriger vers le tableau de bord
+                } else {
+                    alert(data.message || 'Erreur de connexion');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Une erreur est survenue');
+            }
+        });
+
+        document.getElementById('inscription-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nom = document.getElementById('nom').value;
+            const prenom = document.getElementById('prenom').value;
+            const email = document.getElementById('email-inscription').value;
+            const anneeEtude = document.getElementById('annee-etude').value;
+            const filiere = document.getElementById('filiere').value;
+            const password = document.getElementById('password-inscription').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+
+            if (password !== confirmPassword) {
+                alert('Les mots de passe ne correspondent pas');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/auth/inscription', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        nom, prenom, email, anneeEtude, filiere,
+                        motDePasse: password
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    alert('Inscription réussie !');
+                    // Rediriger vers le tableau de bord
+                } else {
+                    alert(data.message || 'Erreur lors de l\'inscription');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Une erreur est survenue');
+            }
+        });
+
+        document.getElementById('loadSocketIO').addEventListener('click', function() {
+            // Créer le script Socket.IO
+            const socketScript = document.createElement('script');
+            socketScript.src = 'https://cdn.socket.io/4.5.4/socket.io.min.js';
+            socketScript.id = 'socket-io-script';
+            
+            socketScript.onload = function() {
+                // Script Socket.IO chargé avec succès
+                const statusMessage = document.createElement('div');
+                statusMessage.textContent = 'Socket.IO chargé avec succès !';
+                statusMessage.style.color = 'green';
+                statusMessage.style.marginTop = '10px';
+                document.getElementById('socketIOContainer').appendChild(statusMessage);
+                
+                // Désactiver le bouton après le chargement
+                document.getElementById('loadSocketIO').disabled = true;
+                document.getElementById('loadSocketIO').textContent = 'Socket.IO Chargé';
+            };
+            
+            socketScript.onerror = function() {
+                // Gestion des erreurs de chargement
+                const errorMessage = document.createElement('div');
+                errorMessage.textContent = 'Erreur de chargement de Socket.IO';
+                errorMessage.style.color = 'red';
+                errorMessage.style.marginTop = '10px';
+                document.getElementById('socketIOContainer').appendChild(errorMessage);
+            };
+            
+            // Ajouter le script à la page
+            document.body.appendChild(socketScript);
+        });
+
+        document.getElementById('applySocketIOToAllFiles').addEventListener('click', async function() {
+            const htmlFiles = [
+                'login.html',
+                'inscription.html',
+                'bibliotheque.html',
+                'nova.html',
+                'profil.html',
+                'emploi-du-temps.html',
+                'role-selection.html',
+                'etudiant/dashboard.html',
+                'administration/dashboard.html'
+            ];
+
+            const socketIOCode = `
+                <!-- Bouton pour charger Socket.IO -->
+                <div id="socketIOContainer" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
+                    <button id="loadSocketIO" style="
+                      background-color: #4CAF50; 
+                      border: none; 
+                      color: white; 
+                      padding: 15px 32px; 
+                      text-align: center; 
+                      text-decoration: none; 
+                      display: inline-block; 
+                      font-size: 16px; 
+                      margin: 4px 2px; 
+                      cursor: pointer;
+                      border-radius: 8px;
+                    ">
+                      Charger Socket.IO
+                    </button>
+                </div>
+
+                <script>
+                document.getElementById('loadSocketIO').addEventListener('click', function() {
+                    const socketScript = document.createElement('script');
+                    socketScript.src = 'https://cdn.socket.io/4.5.4/socket.io.min.js';
+                    socketScript.id = 'socket-io-script';
+                    
+                    socketScript.onload = function() {
+                        const statusMessage = document.createElement('div');
+                        statusMessage.textContent = 'Socket.IO chargé avec succès !';
+                        statusMessage.style.color = 'green';
+                        statusMessage.style.marginTop = '10px';
+                        document.getElementById('socketIOContainer').appendChild(statusMessage);
+                        
+                        document.getElementById('loadSocketIO').disabled = true;
+                        document.getElementById('loadSocketIO').textContent = 'Socket.IO Chargé';
+                    };
+                    
+                    socketScript.onerror = function() {
+                        const errorMessage = document.createElement('div');
+                        errorMessage.textContent = 'Erreur de chargement de Socket.IO';
+                        errorMessage.style.color = 'red';
+                        errorMessage.style.marginTop = '10px';
+                        document.getElementById('socketIOContainer').appendChild(errorMessage);
+                    };
+                    
+                    document.body.appendChild(socketScript);
+                });
+                <\/script>
+              `;
+
+            const statusDiv = document.createElement('div');
+            statusDiv.id = 'socketIOApplyStatus';
+            statusDiv.style.position = 'fixed';
+            statusDiv.style.bottom = '20px';
+            statusDiv.style.right = '20px';
+            statusDiv.style.backgroundColor = 'white';
+            statusDiv.style.border = '1px solid black';
+            statusDiv.style.padding = '10px';
+            statusDiv.style.zIndex = '2000';
+            document.body.appendChild(statusDiv);
+
+            for (const file of htmlFiles) {
+                try {
+                    const response = await fetch('/modify-html', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            file: file,
+                            code: socketIOCode
+                        })
+                    });
+
+                    if (response.ok) {
+                        statusDiv.innerHTML += `<p style="color: green;">✓ ${file} modifié avec succès</p>`;
+                    } else {
+                        statusDiv.innerHTML += `<p style="color: red;">✗ Erreur lors de la modification de ${file}</p>`;
+                    }
+                } catch (error) {
+                    statusDiv.innerHTML += `<p style="color: red;">✗ Erreur lors de la modification de ${file}: ${error.message}</p>`;
+                }
+            }
+
+            this.disabled = true;
+            this.textContent = 'Socket.IO appliqué à tous les fichiers';
+        });
+
+        document.getElementById('addSocketIntegration').addEventListener('click', function() {
+            // Créer un conteneur pour les scripts
+            const scriptsContainer = document.createElement('div');
+            scriptsContainer.id = 'socket-scripts';
+
+            // Script Socket.IO
+            const socketIOScript = document.createElement('script');
+            socketIOScript.src = 'https://cdn.socket.io/4.5.4/socket.io.min.js';
+            socketIOScript.id = 'socket-io-library';
+
+            // Script client socket
+            const socketClientScript = document.createElement('script');
+            socketClientScript.type = 'module';
+            socketClientScript.innerHTML = `
+                import { socketClient } from './js/socketClient.js';
+
+                document.addEventListener('DOMContentLoaded', () => {
+                  // Récupérer l'ID de l'utilisateur depuis votre système d'authentification
+                  const userId = localStorage.getItem('userId');
+                  
+                  if (userId) {
+                    socketClient.connect(userId);
+                  }
+
+                  // Exemple d'écoute d'événements
+                  document.addEventListener('socket-connection', (e) => {
+                    console.log('Statut de connexion:', e.detail.connected);
+                  });
+
+                  document.addEventListener('nouvelle-notification', (e) => {
+                    // Afficher la notification dans l'interface
+                    console.log('Notification reçue:', e.detail);
+                    
+                    // Exemple de création d'une notification visuelle
+                    const notificationDiv = document.createElement('div');
+                    notificationDiv.textContent = e.detail.message;
+                    notificationDiv.style.position = 'fixed';
+                    notificationDiv.style.top = '20px';
+                    notificationDiv.style.right = '20px';
+                    notificationDiv.style.backgroundColor = 'green';
+                    notificationDiv.style.color = 'white';
+                    notificationDiv.style.padding = '10px';
+                    notificationDiv.style.zIndex = '9999';
+                    document.body.appendChild(notificationDiv);
+
+                    // Disparition automatique de la notification
+                    setTimeout(() => {
+                      document.body.removeChild(notificationDiv);
+                    }, 5000);
+                  });
+                });
+              `;
+
+            // Conteneur de statut
+            const statusDiv = document.createElement('div');
+            statusDiv.id = 'socketIntegrationStatus';
+            statusDiv.style.position = 'fixed';
+            statusDiv.style.bottom = '50px';
+            statusDiv.style.right = '20px';
+            statusDiv.style.backgroundColor = 'white';
+            statusDiv.style.border = '1px solid black';
+            statusDiv.style.padding = '10px';
+            statusDiv.style.zIndex = '2000';
+
+            // Ajout des scripts et du statut
+            scriptsContainer.appendChild(socketIOScript);
+            scriptsContainer.appendChild(socketClientScript);
+            document.body.appendChild(scriptsContainer);
+            document.body.appendChild(statusDiv);
+
+            // Gestion du statut de chargement
+            socketIOScript.onload = () => {
+                statusDiv.innerHTML += '<p style="color: green;">✓ Socket.IO chargé</p>';
+                socketClientScript.setAttribute('data-socket-io-loaded', 'true');
+            };
+
+            socketIOScript.onerror = () => {
+                statusDiv.innerHTML += '<p style="color: red;">✗ Erreur de chargement de Socket.IO</p>';
+            };
+
+            socketClientScript.onload = () => {
+                statusDiv.innerHTML += '<p style="color: green;">✓ Client Socket chargé</p>';
+            };
+
+            socketClientScript.onerror = () => {
+                statusDiv.innerHTML += '<p style="color: red;">✗ Erreur de chargement du client Socket</p>';
+            };
+
+            // Désactiver le bouton
+            this.disabled = true;
+            this.textContent = 'Socket.IO Intégré';
+        });
+
+        document.getElementById('addWebSocketTestIntegration').addEventListener('click', function() {
+            // Conteneur pour les modifications
+            const testContainer = document.createElement('div');
+            testContainer.id = 'websocket-test-scripts';
+
+            // Script de test WebSocket
+            const websocketTestScript = document.createElement('script');
+            websocketTestScript.type = 'module';
+            websocketTestScript.innerHTML = `
+                import { socketClient } from './js/socketClient.js';
+
+                // Ajouter le bouton de test WebSocket
+                const testButtonContainer = document.createElement('div');
+                testButtonContainer.innerHTML = \`
+                  <div id="websocketTestContainer" style="position: fixed; bottom: 150px; right: 20px; z-index: 1000;">
+                    <button id="testWebSocket" style="
+                      background-color: #4CAF50; 
+                      border: none; 
+                      color: white; 
+                      padding: 15px 32px; 
+                      text-align: center; 
+                      text-decoration: none; 
+                      display: inline-block; 
+                      font-size: 16px; 
+                      margin: 4px 2px; 
+                      cursor: pointer;
+                      border-radius: 8px;
+                    ">
+                      Tester WebSocket
+                    </button>
+                  </div>
+                \`;
+                document.body.appendChild(testButtonContainer);
+
+                // Ajout des écouteurs d'événements
+                document.getElementById('testWebSocket').addEventListener('click', () => {
+                  const userId = localStorage.getItem('userId');
+                  
+                  if (userId) {
+                    socketClient.connect(userId);
+                    
+                    // Attendre un court instant que la connexion soit établie
+                    setTimeout(() => {
+                      socketClient.testConnection();
+                      socketClient.testGroupeInteraction();
+                    }, 1000);
+                  } else {
+                    alert('Connectez-vous d\'abord pour tester WebSocket');
+                  }
+                });
+
+                // Écoute des événements de test
+                document.addEventListener('socket-test-complete', (e) => {
+                  const { latence, socketId, userId } = e.detail;
+                  
+                  const resultDiv = document.createElement('div');
+                  resultDiv.innerHTML = \`
+                    <h3>🔌 Résultats du Test WebSocket</h3>
+                    <p>🕒 Latence: \${latence}ms</p>
+                    <p>🆔 Socket ID: \${socketId}</p>
+                    <p>👤 Utilisateur ID: \${userId}</p>
+                  \`;
+                  resultDiv.style.position = 'fixed';
+                  resultDiv.style.bottom = '20px';
+                  resultDiv.style.right = '20px';
+                  resultDiv.style.backgroundColor = 'white';
+                  resultDiv.style.border = '1px solid green';
+                  resultDiv.style.padding = '10px';
+                  resultDiv.style.zIndex = '9999';
+                  
+                  document.body.appendChild(resultDiv);
+
+                  // Disparition automatique
+                  setTimeout(() => {
+                    document.body.removeChild(resultDiv);
+                  }, 10000);
+                });
+              `;
+
+            // Conteneur de statut
+            const statusDiv = document.createElement('div');
+            statusDiv.id = 'websocketTestIntegrationStatus';
+            statusDiv.style.position = 'fixed';
+            statusDiv.style.bottom = '50px';
+            statusDiv.style.right = '20px';
+            statusDiv.style.backgroundColor = 'white';
+            statusDiv.style.border = '1px solid black';
+            statusDiv.style.padding = '10px';
+            statusDiv.style.zIndex = '2000';
+
+            // Ajout des scripts et du statut
+            testContainer.appendChild(websocketTestScript);
+            document.body.appendChild(testContainer);
+            document.body.appendChild(statusDiv);
+
+            // Gestion du statut de chargement
+            websocketTestScript.onload = () => {
+                statusDiv.innerHTML += '<p style="color: green;">✓ Tests WebSocket ajoutés</p>';
+            };
+
+            websocketTestScript.onerror = () => {
+                statusDiv.innerHTML += '<p style="color: red;">✗ Erreur de chargement des tests WebSocket</p>';
+            };
+
+            // Désactiver le bouton
+            this.disabled = true;
+            this.textContent = 'Tests WebSocket Intégrés';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAMPUS+ - Bibliothèque</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/global.css">
+    <style>
+        .bibliotheque-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .documents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .document-card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+        .document-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .document-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .recherche-avancee {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .recherche-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 500px;
+        }
+    </style>
+</head>
+<body>
+    <div class="bibliotheque-container">
+        <div class="page-header">
+            <h1 class="title title-primary">Ma Bibliothèque</h1>
+            <div class="actions">
+                <button id="televerser-document" class="btn btn-primary">
+                    + Téléverser un document
+                </button>
+            </div>
+        </div>
+
+        <div class="recherche-avancee">
+            <h2 class="subtitle">Recherche Avancée</h2>
+            <form id="formulaire-recherche">
+                <div class="recherche-grid">
+                    <div class="form-group">
+                        <label for="recherche-mots-cles">Mots-clés</label>
+                        <input type="text" id="recherche-mots-cles" name="motsCles" placeholder="Séparez par des virgules">
+                    </div>
+                    <div class="form-group">
+                        <label for="recherche-matieres">Matières</label>
+                        <input type="text" id="recherche-matieres" name="matieres" placeholder="Séparez par des virgules">
+                    </div>
+                    <div class="form-group">
+                        <label for="recherche-annees">Années d'étude</label>
+                        <select id="recherche-annees" name="anneeEtudes" multiple>
+                            <option value="L1">L1</option>
+                            <option value="L2">L2</option>
+                            <option value="L3">L3</option>
+                            <option value="M1">M1</option>
+                            <option value="M2">M2</option>
+                            <option value="Doctorat">Doctorat</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="recherche-confidentialite">Confidentialité</label>
+                        <select id="recherche-confidentialite" name="confidentialite">
+                            <option value="">Tous</option>
+                            <option value="prive">Privé</option>
+                            <option value="partage_groupe">Partagé au groupe</option>
+                            <option value="public">Public</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Rechercher</button>
+                </div>
+            </form>
+        </div>
+
+        <div id="documents-container" class="documents-grid">
+            <!-- Les documents seront chargés dynamiquement ici -->
+        </div>
+    </div>
+
+    <!-- Modal Téléversement -->
+    <div id="modal-televerser" class="modal">
+        <div class="modal-content">
+            <h2>Téléverser un document</h2>
+            <form id="formulaire-televerser" enctype="multipart/form-data">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="nom-document">Nom du document</label>
+                        <input type="text" id="nom-document" name="nom" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="matiere">Matière</label>
+                        <input type="text" id="matiere" name="matiere" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="annee-etude">Année d'étude</label>
+                        <select id="annee-etude" name="anneeEtude" required>
+                            <option value="L1">L1</option>
+                            <option value="L2">L2</option>
+                            <option value="L3">L3</option>
+                            <option value="M1">M1</option>
+                            <option value="M2">M2</option>
+                            <option value="Doctorat">Doctorat</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description (optionnel)</label>
+                        <textarea id="description" name="description"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="tags">Tags (séparés par des virgules)</label>
+                        <input type="text" id="tags" name="tags">
+                    </div>
+                    <div class="form-group">
+                        <label for="confidentialite">Confidentialité</label>
+                        <select id="confidentialite" name="confidentialite">
+                            <option value="prive">Privé</option>
+                            <option value="partage_groupe">Partagé au groupe</option>
+                            <option value="public">Public</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label for="fichier">Fichier</label>
+                        <input type="file" id="fichier" name="document" required>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Téléverser</button>
+                    <button type="button" id="fermer-modal" class="btn btn-secondary">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/index.html';
+                return;
+            }
+
+            const documentsContainer = document.getElementById('documents-container');
+            const televerserBtn = document.getElementById('televerser-document');
+            const modalTeleverser = document.getElementById('modal-televerser');
+            const formulaireTeleverser = document.getElementById('formulaire-televerser');
+            const formulaireRecherche = document.getElementById('formulaire-recherche');
+
+            // Charger les documents
+            async function chargerDocuments(params = {}) {
+                try {
+                    const queryParams = new URLSearchParams(params).toString();
+                    const reponse = await fetch(`/api/bibliotheque?${queryParams}`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    const donnees = await reponse.json();
+                    afficherDocuments(donnees.donnees.documents);
+                } catch (erreur) {
+                    console.error('Erreur de chargement des documents', erreur);
+                }
+            }
+
+            // Afficher les documents
+            function afficherDocuments(documents) {
+                documentsContainer.innerHTML = '';
+                
+                if (documents.length === 0) {
+                    documentsContainer.innerHTML = '<p>Aucun document trouvé.</p>';
+                    return;
+                }
+
+                documents.forEach(doc => {
+                    const docCard = document.createElement('div');
+                    docCard.classList.add('document-card');
+                    
+                    const iconeType = getIconeType(doc.fichier.type);
+                    
+                    docCard.innerHTML = `
+                        <div class="document-card-header">
+                            <h3>${doc.nom}</h3>
+                            <div class="document-actions">
+                                <a href="/api/bibliotheque/telecharger/${doc._id}" class="btn btn-primary btn-small">
+                                    <i class="icon-download">${iconeType}</i>
+                                </a>
+                                <button class="btn btn-danger btn-small supprimer-document" data-id="${doc._id}">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+                        <p><strong>Matière:</strong> ${doc.matiere}</p>
+                        <p><strong>Année:</strong> ${doc.anneeEtude}</p>
+                        <p><strong>Confidentialité:</strong> ${doc.confidentialite}</p>
+                        <small>Ajouté le ${new Date(doc.metadonnees.dateCreation).toLocaleDateString()}</small>
+                    `;
+
+                    documentsContainer.appendChild(docCard);
+                });
+
+                // Ajouter les écouteurs pour supprimer
+                document.querySelectorAll('.supprimer-document').forEach(btn => {
+                    btn.addEventListener('click', supprimerDocument);
+                });
+            }
+
+            // Obtenir l'icône en fonction du type de fichier
+            function getIconeType(type) {
+                const typeIcones = {
+                    'application/pdf': '📄',
+                    'application/msword': '📝',
+                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '📝',
+                    'image/jpeg': '🖼️',
+                    'image/png': '🖼️',
+                    'application/vnd.ms-powerpoint': '📊',
+                    'application/vnd.openxmlformats-officedocument.presentationml.presentation': '📊'
+                };
+                return typeIcones[type] || '📁';
+            }
+
+            // Supprimer un document
+            async function supprimerDocument(event) {
+                const documentId = event.target.dataset.id;
+                
+                if (!confirm('Voulez-vous vraiment supprimer ce document ?')) return;
+
+                try {
+                    const reponse = await fetch(`/api/bibliotheque/${documentId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (reponse.ok) {
+                        chargerDocuments();
+                    } else {
+                        const erreur = await reponse.json();
+                        alert(erreur.message || 'Erreur lors de la suppression');
+                    }
+                } catch (erreur) {
+                    console.error('Erreur', erreur);
+                    alert('Impossible de supprimer le document');
+                }
+            }
+
+            // Téléverser un document
+            formulaireTeleverser.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(formulaireTeleverser);
+
+                try {
+                    const reponse = await fetch('/api/bibliotheque', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: formData
+                    });
+
+                    if (reponse.ok) {
+                        chargerDocuments();
+                        modalTeleverser.style.display = 'none';
+                        formulaireTeleverser.reset();
+                    } else {
+                        const erreur = await reponse.json();
+                        alert(erreur.message || 'Erreur lors du téléversement');
+                    }
+                } catch (erreur) {
+                    console.error('Erreur', erreur);
+                    alert('Impossible de téléverser le document');
+                }
+            });
+
+            // Recherche avancée
+            formulaireRecherche.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const donnees = {
+                    motsCles: document.getElementById('recherche-mots-cles').value.split(',').map(m => m.trim()).filter(Boolean),
+                    matieres: document.getElementById('recherche-matieres').value.split(',').map(m => m.trim()).filter(Boolean),
+                    anneeEtudes: Array.from(document.getElementById('recherche-annees').selectedOptions).map(opt => opt.value),
+                    confidentialite: document.getElementById('recherche-confidentialite').value
+                };
+
+                try {
+                    const reponse = await fetch('/api/bibliotheque/recherche', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(donnees)
+                    });
+
+                    const resultats = await reponse.json();
+                    afficherDocuments(resultats.donnees.documents);
+                } catch (erreur) {
+                    console.error('Erreur de recherche', erreur);
+                    alert('Impossible d\'effectuer la recherche');
+                }
+            });
+
+            // Gestion des modaux
+            televerserBtn.addEventListener('click', () => {
+                modalTeleverser.style.display = 'block';
+            });
+
+            document.getElementById('fermer-modal').addEventListener('click', () => {
+                modalTeleverser.style.display = 'none';
+            });
+
+            // Charger les documents initiaux
+            chargerDocuments();
+        });
+    </script>
+</body>
+</html>

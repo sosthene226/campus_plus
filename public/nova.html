@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAMPUS+ - NOVA IA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/global.css">
+    <style>
+        .nova-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 20px;
+        }
+        .nova-main {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        .nova-sidebar {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        .chat-container {
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 10px;
+            background-color: #f4f4f4;
+            border-radius: 5px;
+        }
+        .chat-input {
+            display: flex;
+            margin-top: 10px;
+        }
+        .ressource-liste {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .ressource-item {
+            background-color: #f4f4f4;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        .ressource-item:hover {
+            background-color: #e0e0e0;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 800px;
+        }
+    </style>
+</head>
+<body>
+    <div class="nova-container">
+        <div class="nova-main">
+            <div class="page-header">
+                <h1 class="title title-primary">NOVA - Assistant IA</h1>
+                <div class="actions">
+                    <button id="generer-fiche" class="btn btn-primary">
+                        📝 Générer Fiche de Révision
+                    </button>
+                    <button id="generer-quiz" class="btn btn-primary">
+                        ❓ Générer Quiz
+                    </button>
+                    <button id="generer-cas-pratique" class="btn btn-primary">
+                        🧩 Générer Cas Pratique
+                    </button>
+                </div>
+            </div>
+
+            <!-- Zone de génération de ressources -->
+            <div id="ressource-generation" class="mt-20">
+                <div id="ressource-documents" class="form-group">
+                    <label>Sélectionner les documents sources</label>
+                    <div id="liste-documents" class="documents-grid"></div>
+                </div>
+                <div id="ressource-parametres" class="form-grid mt-20" style="display: none;">
+                    <div class="form-group">
+                        <label for="matiere">Matière</label>
+                        <input type="text" id="matiere" name="matiere" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="difficulte">Difficulté</label>
+                        <select id="difficulte" name="difficulte" required>
+                            <option value="debutant">Débutant</option>
+                            <option value="intermediaire" selected>Intermédiaire</option>
+                            <option value="avance">Avancé</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button id="confirmer-generation" class="btn btn-primary">Générer</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal pour afficher la ressource générée -->
+            <div id="modal-ressource" class="modal">
+                <div class="modal-content">
+                    <h2 id="ressource-titre">Ressource NOVA</h2>
+                    <div id="ressource-contenu"></div>
+                    <div class="form-actions mt-20">
+                        <button id="fermer-ressource" class="btn btn-secondary">Fermer</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal de génération de cas pratique -->
+            <div id="modal-cas-pratique" class="modal">
+                <div class="modal-content">
+                    <h2>Générer un Cas Pratique</h2>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="filiere-cas-pratique">Filière</label>
+                            <select id="filiere-cas-pratique" required>
+                                <option value="">Sélectionnez votre filière</option>
+                                
+                                <!-- Sciences Juridiques -->
+                                <optgroup label="Sciences Juridiques">
+                                    <option value="droit">Droit</option>
+                                    <option value="droit_public">Droit Public</option>
+                                    <option value="droit_prive">Droit Privé</option>
+                                    <option value="droit_international">Droit International</option>
+                                    <option value="droit_des_affaires">Droit des Affaires</option>
+                                    <option value="droit_du_travail">Droit du Travail</option>
+                                </optgroup>
+
+                                <!-- Sciences de Gestion -->
+                                <optgroup label="Sciences de Gestion">
+                                    <option value="gestion">Gestion</option>
+                                    <option value="management">Management</option>
+                                    <option value="ressources_humaines">Ressources Humaines</option>
+                                    <option value="finance">Finance</option>
+                                    <option value="comptabilite">Comptabilité</option>
+                                    <option value="marketing">Marketing</option>
+                                    <option value="commerce_international">Commerce International</option>
+                                    <option value="entrepreneuriat">Entrepreneuriat</option>
+                                    <option value="gestion_de_projet">Gestion de Projet</option>
+                                </optgroup>
+
+                                <!-- Sciences et Technologies -->
+                                <optgroup label="Sciences et Technologies">
+                                    <option value="informatique">Informatique</option>
+                                    <option value="cybersecurite">Cybersécurité</option>
+                                    <option value="reseaux">Réseaux</option>
+                                    <option value="intelligence_artificielle">Intelligence Artificielle</option>
+                                    <option value="developpement_logiciel">Développement Logiciel</option>
+                                    <option value="science_des_donnees">Science des Données</option>
+                                    <option value="robotique">Robotique</option>
+                                    <option value="systemes_embarques">Systèmes Embarqués</option>
+                                    <option value="cloud_computing">Cloud Computing</option>
+                                </optgroup>
+
+                                <!-- Sciences Médicales et Santé -->
+                                <optgroup label="Sciences Médicales et Santé">
+                                    <option value="medecine">Médecine</option>
+                                    <option value="pharmacie">Pharmacie</option>
+                                    <option value="odontologie">Odontologie</option>
+                                    <option value="psychologie">Psychologie</option>
+                                    <option value="infirmier">Infirmier</option>
+                                    <option value="sage_femme">Sage-Femme</option>
+                                    <option value="nutrition">Nutrition</option>
+                                    <option value="kinesitherapie">Kinésithérapie</option>
+                                    <option value="radiologie">Radiologie</option>
+                                    <option value="urgences_medicales">Urgences Médicales</option>
+                                </optgroup>
+
+                                <!-- Sciences Humaines et Sociales -->
+                                <optgroup label="Sciences Humaines et Sociales">
+                                    <option value="sociologie">Sociologie</option>
+                                    <option value="anthropologie">Anthropologie</option>
+                                    <option value="philosophie">Philosophie</option>
+                                    <option value="histoire">Histoire</option>
+                                    <option value="sciences_politiques">Sciences Politiques</option>
+                                    <option value="relations_internationales">Relations Internationales</option>
+                                    <option value="communication">Communication</option>
+                                    <option value="journalisme">Journalisme</option>
+                                </optgroup>
+
+                                <!-- Sciences Économiques -->
+                                <optgroup label="Sciences Économiques">
+                                    <option value="economie">Économie</option>
+                                    <option value="economie_internationale">Économie Internationale</option>
+                                    <option value="econometrie">Économétrie</option>
+                                    <option value="economie_du_developpement">Économie du Développement</option>
+                                    <option value="analyse_financiere">Analyse Financière</option>
+                                </optgroup>
+
+                                <!-- Sciences de l'Ingénieur -->
+                                <optgroup label="Sciences de l'Ingénieur">
+                                    <option value="ingenierie_civile">Ingénierie Civile</option>
+                                    <option value="genie_mecanique">Génie Mécanique</option>
+                                    <option value="genie_electrique">Génie Électrique</option>
+                                    <option value="genie_chimique">Génie Chimique</option>
+                                    <option value="genie_environnemental">Génie Environnemental</option>
+                                    <option value="aeronautique">Aéronautique</option>
+                                    <option value="energie_renouvelable">Énergie Renouvelable</option>
+                                </optgroup>
+
+                                <!-- Arts et Culture -->
+                                <optgroup label="Arts et Culture">
+                                    <option value="arts_plastiques">Arts Plastiques</option>
+                                    <option value="design">Design</option>
+                                    <option value="musique">Musique</option>
+                                    <option value="cinema">Cinéma</option>
+                                    <option value="theatre">Théâtre</option>
+                                    <option value="arts_graphiques">Arts Graphiques</option>
+                                    <option value="architecture">Architecture</option>
+                                </optgroup>
+
+                                <!-- Sciences Naturelles -->
+                                <optgroup label="Sciences Naturelles">
+                                    <option value="biologie">Biologie</option>
+                                    <option value="chimie">Chimie</option>
+                                    <option value="physique">Physique</option>
+                                    <option value="mathematiques">Mathématiques</option>
+                                    <option value="geologie">Géologie</option>
+                                    <option value="astronomie">Astronomie</option>
+                                    <option value="environnement">Environnement</option>
+                                </optgroup>
+
+                                <!-- Éducation -->
+                                <optgroup label="Éducation">
+                                    <option value="sciences_de_l_education">Sciences de l'Éducation</option>
+                                    <option value="pedagogie">Pédagogie</option>
+                                    <option value="formation_professionnelle">Formation Professionnelle</option>
+                                </optgroup>
+
+                                <!-- Agriculture et Environnement -->
+                                <optgroup label="Agriculture et Environnement">
+                                    <option value="agronomie">Agronomie</option>
+                                    <option value="veterinaire">Vétérinaire</option>
+                                    <option value="foresterie">Foresterie</option>
+                                    <option value="ecologie">Écologie</option>
+                                    <option value="gestion_des_ressources_naturelles">Gestion des Ressources Naturelles</option>
+                                </optgroup>
+
+                                <!-- Langues et Littérature -->
+                                <optgroup label="Langues et Littérature">
+                                    <option value="langues_etrangeres">Langues Étrangères</option>
+                                    <option value="traduction">Traduction</option>
+                                    <option value="litterature">Littérature</option>
+                                    <option value="linguistique">Linguistique</option>
+                                    <option value="langues_anciennes">Langues Anciennes</option>
+                                </optgroup>
+
+                                <!-- Sport et Performance -->
+                                <optgroup label="Sport et Performance">
+                                    <option value="sciences_du_sport">Sciences du Sport</option>
+                                    <option value="entrainement_sportif">Entraînement Sportif</option>
+                                    <option value="nutrition_sportive">Nutrition Sportive</option>
+                                    <option value="physiologie">Physiologie</option>
+                                    <option value="management_sportif">Management Sportif</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="annee-etude-cas-pratique">Année d'étude</label>
+                            <select id="annee-etude-cas-pratique" required>
+                                <option value="">Sélectionnez votre année</option>
+                                <option value="1">1ère année</option>
+                                <option value="2">2ème année</option>
+                                <option value="3">3ème année</option>
+                                <option value="4">4ème année</option>
+                                <option value="5">5ème année</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="difficulte-cas-pratique">Niveau de difficulté</label>
+                            <select id="difficulte-cas-pratique">
+                                <option value="debutant">Débutant</option>
+                                <option value="intermediaire" selected>Intermédiaire</option>
+                                <option value="avance">Avancé</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group mt-20">
+                        <label>Documents sources (optionnel)</label>
+                        <div id="liste-documents-cas-pratique" class="documents-grid"></div>
+                    </div>
+                    <div class="form-actions mt-20">
+                        <button id="confirmer-cas-pratique" class="btn btn-primary">Générer</button>
+                        <button id="fermer-cas-pratique" class="btn btn-secondary">Annuler</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="nova-sidebar">
+            <div class="chat-container">
+                <h2>💬 Chat avec NOVA</h2>
+                <div id="chat-messages" class="chat-messages"></div>
+                <div class="chat-input">
+                    <input type="text" id="message-input" placeholder="Posez une question...">
+                    <button id="envoyer-message" class="btn btn-primary">Envoyer</button>
+                </div>
+            </div>
+
+            <div class="mt-20">
+                <h3>Mes Ressources</h3>
+                <div id="ressources-liste" class="ressource-liste"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/index.html';
+                return;
+            }
+
+            // Charger les documents
+            async function chargerDocuments() {
+                try {
+                    const reponse = await fetch('/api/bibliotheque', {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    const donnees = await reponse.json();
+                    afficherDocuments(donnees.donnees.documents);
+                } catch (erreur) {
+                    console.error('Erreur de chargement des documents', erreur);
+                }
+            }
+
+            // Afficher les documents pour sélection
+            function afficherDocuments(documents) {
+                const listeDocuments = document.getElementById('liste-documents');
+                listeDocuments.innerHTML = '';
+
+                documents.forEach(doc => {
+                    const docElement = document.createElement('div');
+                    docElement.classList.add('document-card', 'selectionnable');
+                    docElement.innerHTML = `
+                        <input type="checkbox" id="doc-${doc._id}" value="${doc._id}">
+                        <label for="doc-${doc._id}">
+                            ${doc.nom} (${doc.matiere})
+                        </label>
+                    `;
+                    listeDocuments.appendChild(docElement);
+                });
+            }
+
+            // Générer une fiche de révision
+            document.getElementById('generer-fiche').addEventListener('click', () => {
+                document.getElementById('ressource-parametres').style.display = 'grid';
+                document.getElementById('confirmer-generation').dataset.type = 'fiche_revision';
+            });
+
+            // Générer un quiz
+            document.getElementById('generer-quiz').addEventListener('click', () => {
+                document.getElementById('ressource-parametres').style.display = 'grid';
+                document.getElementById('confirmer-generation').dataset.type = 'quiz';
+            });
+
+            // Confirmation de génération
+            document.getElementById('confirmer-generation').addEventListener('click', async (e) => {
+                const type = e.target.dataset.type;
+                const documentIds = Array.from(
+                    document.querySelectorAll('#liste-documents input:checked')
+                ).map(input => input.value);
+
+                const donnees = {
+                    documentIds,
+                    matiere: document.getElementById('matiere').value,
+                    difficulte: document.getElementById('difficulte').value
+                };
+
+                try {
+                    const url = type === 'fiche_revision' 
+                        ? '/api/nova/fiche-revision' 
+                        : '/api/nova/quiz';
+
+                    const reponse = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(donnees)
+                    });
+
+                    const resultat = await reponse.json();
+                    
+                    // Afficher la ressource générée
+                    const modalRessource = document.getElementById('modal-ressource');
+                    const titreRessource = document.getElementById('ressource-titre');
+                    const contenuRessource = document.getElementById('ressource-contenu');
+
+                    titreRessource.textContent = resultat.donnees[type === 'fiche_revision' ? 'ficheRevision' : 'quiz'].titre;
+                    
+                    if (type === 'fiche_revision') {
+                        contenuRessource.innerHTML = `
+                            <div class="fiche-revision">
+                                ${resultat.donnees.contenu.replace(/\n/g, '<br>')}
+                            </div>
+                        `;
+                    } else {
+                        const questionsQuiz = resultat.donnees.questions;
+                        contenuRessource.innerHTML = questionsQuiz.map((q, index) => `
+                            <div class="question">
+                                <h3>Question ${index + 1}</h3>
+                                <p>${q.question}</p>
+                                ${q.type === 'choix_multiple' ? `
+                                    <div class="reponses">
+                                        ${q.reponses.map(rep => `
+                                            <label>
+                                                <input type="radio" name="q${index}" value="${rep}">
+                                                ${rep}
+                                            </label>
+                                        `).join('')}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `).join('');
+                    }
+
+                    modalRessource.style.display = 'block';
+                    chargerRessources(); // Mettre à jour la liste des ressources
+                } catch (erreur) {
+                    console.error('Erreur de génération', erreur);
+                }
+            });
+
+            // Fermer le modal de ressource
+            document.getElementById('fermer-ressource').addEventListener('click', () => {
+                document.getElementById('modal-ressource').style.display = 'none';
+            });
+
+            // Chat avec NOVA
+            const chatMessages = document.getElementById('chat-messages');
+            const messageInput = document.getElementById('message-input');
+            const envoyerMessageBtn = document.getElementById('envoyer-message');
+
+            envoyerMessageBtn.addEventListener('click', envoyerMessage);
+            messageInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') envoyerMessage();
+            });
+
+            async function envoyerMessage() {
+                const message = messageInput.value.trim();
+                if (!message) return;
+
+                // Ajouter le message de l'étudiant
+                ajouterMessageChat('etudiant', message);
+                messageInput.value = '';
+
+                try {
+                    const reponse = await fetch('/api/nova/chat', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            message,
+                            contexte: {
+                                documentIds: Array.from(
+                                    document.querySelectorAll('#liste-documents input:checked')
+                                ).map(input => input.value)
+                            }
+                        })
+                    });
+
+                    const donnees = await reponse.json();
+                    ajouterMessageChat('nova', donnees.donnees.reponse);
+                } catch (erreur) {
+                    console.error('Erreur de chat', erreur);
+                    ajouterMessageChat('nova', 'Désolé, je n\'ai pas pu traiter votre message.');
+                }
+            }
+
+            function ajouterMessageChat(role, message) {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('message', `message-${role}`);
+                messageElement.textContent = message;
+                chatMessages.appendChild(messageElement);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            // Charger les ressources NOVA
+            async function chargerRessources() {
+                try {
+                    const reponse = await fetch('/api/nova/ressources', {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    const donnees = await reponse.json();
+                    const listRessources = document.getElementById('ressources-liste');
+                    listRessources.innerHTML = '';
+
+                    donnees.donnees.ressources.forEach(ressource => {
+                        const ressourceElement = document.createElement('div');
+                        ressourceElement.classList.add('ressource-item');
+                        ressourceElement.innerHTML = `
+                            <strong>${ressource.titre}</strong>
+                            <small>${ressource.type} - ${ressource.matiere}</small>
+                            <small>${new Date(ressource.metadonnees.dateCreation).toLocaleDateString()}</small>
+                        `;
+                        ressourceElement.addEventListener('click', () => ouvrirRessource(ressource._id));
+                        listRessources.appendChild(ressourceElement);
+                    });
+                } catch (erreur) {
+                    console.error('Erreur de chargement des ressources', erreur);
+                }
+            }
+
+            // Ouvrir une ressource
+            async function ouvrirRessource(id) {
+                try {
+                    const reponse = await fetch(`/api/nova/ressource/${id}`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    const donnees = await reponse.json();
+                    const ressource = donnees.donnees.ressource;
+
+                    const modalRessource = document.getElementById('modal-ressource');
+                    const titreRessource = document.getElementById('ressource-titre');
+                    const contenuRessource = document.getElementById('ressource-contenu');
+
+                    titreRessource.textContent = ressource.titre;
+                    
+                    if (ressource.type === 'fiche_revision') {
+                        contenuRessource.innerHTML = `
+                            <div class="fiche-revision">
+                                ${ressource.contenu.texte.replace(/\n/g, '<br>')}
+                            </div>
+                        `;
+                    } else if (ressource.type === 'quiz') {
+                        contenuRessource.innerHTML = ressource.contenu.questions.map((q, index) => `
+                            <div class="question">
+                                <h3>Question ${index + 1}</h3>
+                                <p>${q.question}</p>
+                                ${q.type === 'choix_multiple' ? `
+                                    <div class="reponses">
+                                        ${q.reponses.map(rep => `
+                                            <label>
+                                                <input type="radio" name="q${index}" value="${rep}">
+                                                ${rep}
+                                            </label>
+                                        `).join('')}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `).join('');
+                    }
+
+                    modalRessource.style.display = 'block';
+                } catch (erreur) {
+                    console.error('Erreur d\'ouverture de ressource', erreur);
+                }
+            }
+
+            // Ajout de la logique de génération de cas pratique
+            document.getElementById('generer-cas-pratique').addEventListener('click', () => {
+                const modalCasPratique = document.getElementById('modal-cas-pratique');
+                modalCasPratique.style.display = 'block';
+            });
+
+            document.getElementById('fermer-cas-pratique').addEventListener('click', () => {
+                const modalCasPratique = document.getElementById('modal-cas-pratique');
+                modalCasPratique.style.display = 'none';
+            });
+
+            document.getElementById('confirmer-cas-pratique').addEventListener('click', async () => {
+                const filiere = document.getElementById('filiere-cas-pratique').value;
+                const anneeEtude = document.getElementById('annee-etude-cas-pratique').value;
+                const difficulte = document.getElementById('difficulte-cas-pratique').value;
+
+                const documentIds = Array.from(
+                    document.querySelectorAll('#liste-documents-cas-pratique input:checked')
+                ).map(input => input.value);
+
+                if (!filiere || !anneeEtude) {
+                    alert('Veuillez sélectionner une filière et une année d\'étude');
+                    return;
+                }
+
+                try {
+                    const reponse = await fetch('/api/nova/cas-pratique', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            filiere,
+                            anneeEtude,
+                            difficulte,
+                            documentIds
+                        })
+                    });
+
+                    const resultat = await reponse.json();
+                    
+                    const modalRessource = document.getElementById('modal-ressource');
+                    const titreRessource = document.getElementById('ressource-titre');
+                    const contenuRessource = document.getElementById('ressource-contenu');
+
+                    const casPratique = resultat.donnees.scenario;
+
+                    titreRessource.textContent = casPratique.titre;
+                    contenuRessource.innerHTML = `
+                        <div class="cas-pratique">
+                            <h3>Scénario</h3>
+                            <p>${casPratique.scenario}</p>
+
+                            <h3>Objectifs</h3>
+                            <ul>
+                                ${casPratique.objectifs.map(obj => `<li>${obj}</li>`).join('')}
+                            </ul>
+
+                            <h3>Consignes</h3>
+                            <ol>
+                                ${casPratique.consignes.map(cons => `<li>${cons}</li>`).join('')}
+                            </ol>
+
+                            <h3>Critères d'évaluation</h3>
+                            <ul>
+                                ${casPratique.criteresevaluation.map(crit => `<li>${crit}</li>`).join('')}
+                            </ul>
+
+                            <div class="infos-supplementaires">
+                                <p><strong>Temps estimé :</strong> ${casPratique.tempsEstime} minutes</p>
+                                <p><strong>Ressources autorisées :</strong> ${casPratique.ressourcesAutorisees.join(', ')}</p>
+                            </div>
+                        </div>
+                    `;
+
+                    modalRessource.style.display = 'block';
+                    document.getElementById('modal-cas-pratique').style.display = 'none';
+                    
+                    chargerRessources(); // Mettre à jour la liste des ressources
+                } catch (erreur) {
+                    console.error('Erreur de génération de cas pratique', erreur);
+                    alert('Une erreur est survenue lors de la génération du cas pratique');
+                }
+            });
+
+            // Initialisation
+            chargerDocuments();
+            chargerRessources();
+        });
+    </script>
+</body>
+</html>

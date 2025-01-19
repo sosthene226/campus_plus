@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAMPUS+ - Emploi du Temps</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/main.min.css">
+    <style>
+        .emploi-du-temps-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #calendrier {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 500px;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+        .close-modal {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="emploi-du-temps-container">
+        <div class="page-header">
+            <h1 class="title title-primary">Mon Emploi du Temps</h1>
+            <div class="actions">
+                <button id="ajouter-evenement" class="btn btn-primary">
+                    + Ajouter un événement
+                </button>
+            </div>
+        </div>
+        
+        <div id="calendrier"></div>
+    </div>
+
+    <!-- Modal Événement -->
+    <div id="modal-evenement" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-titre">Nouvel Événement</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <form id="formulaire-evenement">
+                <input type="hidden" id="evenement-id">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="titre">Titre</label>
+                        <input type="text" id="titre" name="titre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="type">Type</label>
+                        <select id="type" name="type" required>
+                            <option value="cours">Cours</option>
+                            <option value="examen">Examen</option>
+                            <option value="devoir">Devoir</option>
+                            <option value="autre">Autre</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="date-debut">Date de début</label>
+                        <input type="datetime-local" id="date-debut" name="dateDebut" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="date-fin">Date de fin</label>
+                        <input type="datetime-local" id="date-fin" name="dateFin">
+                    </div>
+                    <div class="form-group">
+                        <label for="matiere">Matière</label>
+                        <input type="text" id="matiere" name="matiere">
+                    </div>
+                    <div class="form-group">
+                        <label for="priorite">Priorité</label>
+                        <select id="priorite" name="priorite">
+                            <option value="basse">Basse</option>
+                            <option value="normale" selected>Normale</option>
+                            <option value="haute">Haute</option>
+                            <option value="critique">Critique</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label for="description">Description</label>
+                        <textarea id="description" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label>
+                            <input type="checkbox" id="rappel" name="rappel" checked>
+                            Activer les rappels
+                        </label>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    <button type="button" id="supprimer-evenement" class="btn btn-danger" style="display:none;">Supprimer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/main.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/locales/fr.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/index.html';
+                return;
+            }
+
+            // Configuration du calendrier
+            const calendrier = new FullCalendar.Calendar(document.getElementById('calendrier'), {
+                locale: 'fr',
+                initialView: 'timeGridWeek',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                editable: true,
+                events: chargerEvenements,
+                eventClick: ouvrirEvenement,
+                dateClick: ouvrirNouvelEvenement
+            });
+            calendrier.render();
+
+            // Charger les événements
+            async function chargerEvenements(infosChargement) {
+                try {
+                    const reponse = await fetch(`/api/evenements?debut=${infosChargement.startStr}&fin=${infosChargement.endStr}`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    const donnees = await reponse.json();
+                    return donnees.donnees.evenements.map(evenement => ({
+                        id: evenement._id,
+                        title: evenement.titre,
+                        start: evenement.dateDebut,
+                        end: evenement.dateFin || evenement.dateDebut,
+                        allDay: !evenement.dateFin,
+                        backgroundColor: getColorByType(evenement.type),
+                        extendedProps: evenement
+                    }));
+                } catch (erreur) {
+                    console.error('Erreur de chargement des événements', erreur);
+                    return [];
+                }
+            }
+
+            // Couleurs par type d'événement
+            function getColorByType(type) {
+                const couleurs = {
+                    'cours': '#3788d8',
+                    'examen': '#dc3545',
+                    'devoir': '#28a745',
+                    'autre': '#6c757d'
+                };
+                return couleurs[type] || '#6c757d';
+            }
+
+            // Ouvrir un événement existant
+            function ouvrirEvenement(infos) {
+                const evenement = infos.event.extendedProps;
+                document.getElementById('modal-titre').textContent = 'Modifier l\'événement';
+                document.getElementById('evenement-id').value = evenement._id;
+                
+                // Remplir le formulaire
+                ['titre', 'type', 'matiere', 'description', 'priorite'].forEach(champ => {
+                    document.getElementById(champ).value = evenement[champ] || '';
+                });
+
+                // Formater les dates
+                document.getElementById('date-debut').value = formatDateInput(evenement.dateDebut);
+                document.getElementById('date-fin').value = evenement.dateFin ? formatDateInput(evenement.dateFin) : '';
+                
+                document.getElementById('rappel').checked = evenement.rappel;
+                
+                // Afficher le bouton de suppression
+                document.getElementById('supprimer-evenement').style.display = 'block';
+                
+                // Ouvrir le modal
+                document.getElementById('modal-evenement').style.display = 'block';
+            }
+
+            // Ouvrir un nouvel événement
+            function ouvrirNouvelEvenement(infos) {
+                document.getElementById('modal-titre').textContent = 'Nouvel Événement';
+                document.getElementById('formulaire-evenement').reset();
+                document.getElementById('evenement-id').value = '';
+                document.getElementById('date-debut').value = formatDateInput(infos.dateStr);
+                document.getElementById('supprimer-evenement').style.display = 'none';
+                
+                document.getElementById('modal-evenement').style.display = 'block';
+            }
+
+            // Formater la date pour l'input datetime-local
+            function formatDateInput(date) {
+                const d = new Date(date);
+                d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+                return d.toISOString().slice(0, 16);
+            }
+
+            // Soumettre le formulaire
+            document.getElementById('formulaire-evenement').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formulaire = e.target;
+                const id = document.getElementById('evenement-id').value;
+                
+                const donnees = {
+                    titre: formulaire.titre.value,
+                    type: formulaire.type.value,
+                    dateDebut: new Date(formulaire.dateDebut.value).toISOString(),
+                    dateFin: formulaire.dateFin.value ? new Date(formulaire.dateFin.value).toISOString() : null,
+                    matiere: formulaire.matiere.value,
+                    description: formulaire.description.value,
+                    priorite: formulaire.priorite.value,
+                    rappel: formulaire.rappel.checked
+                };
+
+                try {
+                    const url = id ? `/api/evenements/${id}` : '/api/evenements';
+                    const methode = id ? 'PATCH' : 'POST';
+
+                    const reponse = await fetch(url, {
+                        method: methode,
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(donnees)
+                    });
+
+                    if (reponse.ok) {
+                        calendrier.refetchEvents();
+                        document.getElementById('modal-evenement').style.display = 'none';
+                    } else {
+                        const erreur = await reponse.json();
+                        alert(erreur.message || 'Erreur lors de l\'enregistrement');
+                    }
+                } catch (erreur) {
+                    console.error('Erreur', erreur);
+                    alert('Impossible d\'enregistrer l\'événement');
+                }
+            });
+
+            // Supprimer un événement
+            document.getElementById('supprimer-evenement').addEventListener('click', async () => {
+                const id = document.getElementById('evenement-id').value;
+                if (!confirm('Voulez-vous vraiment supprimer cet événement ?')) return;
+
+                try {
+                    const reponse = await fetch(`/api/evenements/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (reponse.ok) {
+                        calendrier.refetchEvents();
+                        document.getElementById('modal-evenement').style.display = 'none';
+                    } else {
+                        const erreur = await reponse.json();
+                        alert(erreur.message || 'Erreur lors de la suppression');
+                    }
+                } catch (erreur) {
+                    console.error('Erreur', erreur);
+                    alert('Impossible de supprimer l\'événement');
+                }
+            });
+
+            // Fermer le modal
+            document.querySelector('.close-modal').addEventListener('click', () => {
+                document.getElementById('modal-evenement').style.display = 'none';
+            });
+
+            // Bouton Ajouter événement
+            document.getElementById('ajouter-evenement').addEventListener('click', () => {
+                ouvrirNouvelEvenement({ dateStr: new Date().toISOString() });
+            });
+        });
+    </script>
+</body>
+</html>

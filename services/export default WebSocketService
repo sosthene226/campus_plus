@@ -1,0 +1,42 @@
+// Connexion au socket WebSocket
+const socket = io('http://localhost:3333', {
+  withCredentials: true,
+  extraHeaders: {
+    'my-custom-header': 'campus-plus'
+  }
+});
+
+// Gestion des événements de connexion
+socket.on('connect', () => {
+  console.log('Connecté au serveur WebSocket');
+});
+
+socket.on('connect_error', (error) => {
+  console.error('Erreur de connexion WebSocket:', error);
+});
+
+// Fonction pour rejoindre un groupe
+function rejoindreGroupe(groupeId, etudiantId) {
+  socket.emit('rejoindre_groupe', { groupeId, etudiantId });
+}
+
+// Fonction pour envoyer un message
+function envoyerMessage(groupeId, message, etudiantId) {
+  socket.emit('envoyer_message', { 
+    groupeId, 
+    message, 
+    etudiantId 
+  });
+}
+
+// Écoute des événements de groupe
+socket.on('groupe_rejoint', (data) => {
+  console.log('Groupe rejoint avec succès:', data.groupeId);
+});
+
+socket.on('erreur_groupe', (data) => {
+  console.error('Erreur lors de la connexion au groupe:', data.message);
+});
+
+// Exportation des fonctions pour utilisation dans d'autres scripts
+export { socket, rejoindreGroupe, envoyerMessage };

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAMPUS+ - Connexion</title>
+    
+    <!-- Styles CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/campus-plus.css">
+</head>
+<body class="bg-primary">
+    <div class="container">
+        <div class="row justify-content-center align-items-center vh-100">
+            <div class="col-md-6">
+                <div class="card shadow-lg">
+                    <div class="card-header text-center bg-primary text-white">
+                        <img src="/images/logo-campus-plus.png" alt="Logo CAMPUS+" class="img-fluid mb-3" style="max-height: 100px;">
+                        <h2>CAMPUS+</h2>
+                        <p>Votre Assistant Académique Intelligent</p>
+                    </div>
+                    <div class="card-body">
+                        <form id="login-form">
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" class="form-control" id="email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Mot de passe</label>
+                                <input type="password" class="form-control" id="password" required>
+                            </div>
+                            <div class="form-group form-check">
+                                <input type="checkbox" class="form-check-input" id="remember-me">
+                                <label class="form-check-label" for="remember-me">Se souvenir de moi</label>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">Connexion</button>
+                            <div class="text-center mt-3">
+                                <a href="#" id="forgot-password">Mot de passe oublié ?</a>
+                                <hr>
+                                <p>Pas de compte ? <a href="#" id="register">Inscrivez-vous</a></p>
+                            </div>
+                            <div id="error-message" style="display: none;"></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('#login-form').on('submit', async function(e) {
+            e.preventDefault();
+            
+            const emailInput = $('#email').val();
+            const passwordInput = $('#password').val();
+
+            // Validation de base
+            if (!emailInput || !passwordInput) {
+                alert('Veuillez saisir votre email et votre mot de passe');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/auth/connexion', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: emailInput,
+                        password: passwordInput
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Stocker les informations utilisateur
+                    localStorage.setItem('campus_plus_token', data.token);
+                    localStorage.setItem('campus_plus_user', JSON.stringify(data.utilisateur));
+                    
+                    // Rediriger selon le rôle
+                    switch(data.utilisateur.role) {
+                        case 'admin':
+                            window.location.href = '/admin/dashboard.html';
+                            break;
+                        case 'etudiant':
+                            window.location.href = '/etudiant/dashboard.html';
+                            break;
+                        default:
+                            window.location.href = '/dashboard.html';
+                    }
+                } else {
+                    // Afficher l'erreur de manière plus conviviale
+                    const errorMessage = data.message || 'Erreur de connexion';
+                    $('#error-message').text(errorMessage).show();
+                }
+            } catch (error) {
+                console.error('Erreur de connexion', error);
+                $('#error-message').text('Une erreur réseau est survenue. Veuillez réessayer.').show();
+            }
+        });
+
+        $('#forgot-password').on('click', function() {
+            // TODO: Implémenter la réinitialisation de mot de passe
+            alert('Fonctionnalité en développement');
+        });
+
+        $('#register').on('click', function() {
+            // TODO: Rediriger vers la page d'inscription
+            alert('Inscription en développement');
+        });
+    });
+    </script>
+</body>
+</html>

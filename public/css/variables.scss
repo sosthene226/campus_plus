@@ -1,0 +1,36 @@
+// Variables de couleurs
+$primary-gradient-start: #667eea;
+$primary-gradient-end: #764ba2;
+$primary-color: #764ba2;
+$secondary-color: #667eea;
+
+// Nuances de gris
+$gray-light: #f4f4f4;
+$gray-medium: #ddd;
+$gray-dark: #333;
+
+// Couleurs d'état
+$success-color: #28a745;
+$danger-color: #dc3545;
+$warning-color: #ffc107;
+
+// Typographie
+$font-family-primary: 'Poppins', sans-serif;
+
+// Mixins utiles
+@mixin gradient-background {
+    background: linear-gradient(135deg, $primary-gradient-start 0%, $primary-gradient-end 100%);
+}
+
+@mixin box-shadow {
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+}
+
+@mixin transition($property: all, $duration: 0.3s, $timing: ease) {
+    transition: $property $duration $timing;
+}
+
+// Fonction pour générer des variants de couleur
+@function color-variant($color, $amount: 10%) {
+    @return mix(white, $color, $amount);
+}

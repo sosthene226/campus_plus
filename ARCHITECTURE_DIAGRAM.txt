@@ -1,0 +1,38 @@
+                   🌐 CAMPUS+ : Architecture Système 🌐
+
++-------------------+     +-------------------+     +-------------------+
+|   Authentification|     |   NOVA (IA)       |     |   Groupes Étude   |
+|   & Profil        |     |   Assistant       |     |   Collaboration   |
++-------------------+     +-------------------+     +-------------------+
+| - Inscription     |     | - Fiches Révision |     | - Messagerie      |
+| - Connexion       |     | - Cas Pratiques   |     | - Partage Docs    |
+| - Gestion Profil  |     | - Résumés Cours   |     | - Notes Collab.   |
++--------+----------+     +--------+----------+     +--------+----------+
+         |                         |                         |
+         v                         v                         v
++---------------------------------------------------+
+|               Système d'Abonnement                |
+|   - Période d'Essai                               |
+|   - Paiement Mobile Money                         |
+|   - Gestion Accès Dynamique                       |
++---------------------------------------------------+
+                     |
+                     v
++---------------------------------------------------+
+|               Infrastructure Technique             |
+| - Node.js / Express                                |
+| - MongoDB                                          |
+| - WebSocket                                        |
+| - JWT                                              |
++---------------------------------------------------+
+                     |
+                     v
++---------------------------------------------------+
+|               Services Externes                    |
+| - OpenAI API                                       |
+| - Services Paiement Mobile                         |
++---------------------------------------------------+
+
+🔒 Sécurité à Chaque Niveau
+🚀 Évolutif et Modulaire
+💡 Intelligence Artificielle Intégrée

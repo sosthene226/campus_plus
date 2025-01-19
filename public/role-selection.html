@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAMPUS+ - Sélection de Rôle</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 0;
+        }
+        .role-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 50px;
+            background: white;
+            padding: 50px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        .role-card {
+            text-align: center;
+            padding: 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            width: 250px;
+        }
+        .role-card:hover {
+            border-color: #764ba2;
+            transform: scale(1.05);
+        }
+        .role-card img {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin-bottom: 20px;
+            background-color: #f0f0f0;
+        }
+        .role-card h2 {
+            margin: 15px 0;
+            color: #333;
+        }
+        .role-card p {
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="role-container">
+        <div class="role-card" onclick="redirectToEtudiant()">
+            <img src="https://via.placeholder.com/150?text=Étudiant" alt="Étudiant">
+            <h2>Étudiant</h2>
+            <p>Accéder à l'espace étudiant</p>
+        </div>
+        <div class="role-card" onclick="redirectToAdmin()">
+            <img src="https://via.placeholder.com/150?text=Admin" alt="Administrateur">
+            <h2>Administrateur</h2>
+            <p>Accéder à l'espace administrateur</p>
+        </div>
+    </div>
+
+    <script>
+        function redirectToEtudiant() {
+            window.location.href = '/etudiant/dashboard.html';
+        }
+
+        function redirectToAdmin() {
+            window.location.href = '/administration/dashboard.html';
+        }
+    </script>
+</body>
+</html>
