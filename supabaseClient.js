@@ -1,5 +1,20 @@
-﻿import { createClient } from '@supabase/supabase-js'
-import 'dotenv/config'
+﻿import 'dotenv/config'
+import { createClient } from '@supabase/supabase-js'
+
+// Vérification des variables d'environnement
+const supabaseUrl = process.env.SUPABASE_URL
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY
+
+// Ajout de vérifications
+if (!supabaseUrl) {
+  console.error('❌ SUPABASE_URL manquant')
+  throw new Error('Configuration Supabase incomplète : URL manquante')
+}
+
+if (!supabaseAnonKey) {
+  console.error('❌ SUPABASE_ANON_KEY manquant')
+  throw new Error('Configuration Supabase incomplète : Clé anonyme manquante')
+}
 
 // Configuration des options Supabase
 const supabaseOptions = {
@@ -20,8 +35,9 @@ const supabaseOptions = {
 
 // Client standard (utilisateur anonyme)
 export const supabase = createClient(
-  process.env.SUPABASE_URL, 
-  process.env.SUPABASE_ANON_KEY
+  supabaseUrl, 
+  supabaseAnonKey,
+  supabaseOptions
 )
 
 // Fonction de test de connexion
